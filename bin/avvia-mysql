@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Avvia MySQL 8 + phpMyAdmin (Docker) ed entra nel prompt mysql>.
+# I file creati con "tee" finiscono in ~/Documents/mysql
+set -e
+mkdir -p "$HOME/Documents/mysql"
+
+if ! docker info >/dev/null 2>&1; then
+    if ! systemctl is-active --quiet docker; then
+        echo "Docker è spento. Avvialo con:  sudo systemctl enable --now docker" >&2
+    else
+        echo "Non hai i permessi per usare Docker." >&2
+        echo "Hai fatto logout/login dopo l'installazione? (vedi docs/problemi-comuni.md)" >&2
+    fi
+    exit 1
+fi
+
+if ! docker container inspect mysql-scuola >/dev/null 2>&1; then
+    echo "Il container mysql-scuola non esiste. Lancia prima ./install.sh" >&2
+    exit 1
+fi
+
+# Spegne XAMPP solo se sta girando (usa le stesse porte 80 e 3306).
+# Così sudo viene chiesto solo quando serve davvero.
+if [ -x /opt/lampp/lampp ] && /opt/lampp/lampp status 2>/dev/null | grep -Eq "(MySQL|Apache) is running"; then
+    echo "XAMPP è acceso: lo spengo per liberare le porte 80 e 3306..."
+    sudo /opt/lampp/lampp stop
+fi
+
+docker start mysql-scuola pma-scuola >/dev/null
+
+printf "Attendo che MySQL sia pronto"
+for _ in $(seq 1 60); do
+    docker exec mysql-scuola mysqladmin ping -h 127.0.0.1 -u root --silent >/dev/null 2>&1 && break
+    printf "."; sleep 1
+done
+echo " ok!  (phpMyAdmin: http://localhost/phpmyadmin)"
+
+# Gira come il tuo utente, così i file del tee sono tuoi e non di root
+exec docker exec -it -u "$(id -u):$(id -g)" -e HOME=/tmp -w /work mysql-scuola mysql -h 127.0.0.1 -u root "$@"

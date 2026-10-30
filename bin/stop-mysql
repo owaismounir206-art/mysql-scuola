@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Spegne MySQL + phpMyAdmin (Docker). I dati restano salvati.
+docker stop mysql-scuola pma-scuola

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Avvia XAMPP, spegnendo prima i container Docker (usano la stessa porta 3306)
+if [ ! -x /opt/lampp/lampp ]; then
+    echo "XAMPP non è installato in /opt/lampp" >&2
+    exit 1
+fi
+docker stop mysql-scuola pma-scuola >/dev/null 2>&1
+sudo /opt/lampp/lampp start

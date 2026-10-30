@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Mostra cosa è acceso
+echo "== Docker =="
+docker ps -a --filter name=scuola --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+if [ -x /opt/lampp/lampp ]; then
+    echo; echo "== XAMPP =="
+    /opt/lampp/lampp status 2>/dev/null | tail -n +2
+fi
+echo; echo "== Chi usa le porte 80 / 3306 / 8080 =="
+ss -ltn 2>/dev/null | grep -E ':(80|3306|8080)\b' || echo "nessuno"
