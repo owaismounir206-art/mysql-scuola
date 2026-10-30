@@ -28,8 +28,8 @@ Su RHEL/Rocky/Alma installa prima Docker [dal sito ufficiale](https://docs.docke
 ## 🚀 Installazione (una volta sola)
 
 ```bash
-git clone https://github.com/owaismounir206-art/mysql-arch.git
-cd mysql-arch
+git clone https://github.com/owaismounir206-art/mysql-scuola.git
+cd mysql-scuola
 ./install.sh
 ```
 

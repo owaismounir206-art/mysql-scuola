@@ -87,7 +87,7 @@ if ! $DOCKER info >/dev/null 2>&1; then
 fi
 
 # 2. Libera le porte --------------------------------------------------------------
-if [ -x /opt/lampp/lampp ]; then
+if pgrep -f '^/opt/lampp/s?bin/(httpd|mysqld|mariadbd)' >/dev/null; then
     verde "Spengo XAMPP (usa le stesse porte 80 e 3306)"
     sudo /opt/lampp/lampp stop >/dev/null 2>&1 || true
 fi

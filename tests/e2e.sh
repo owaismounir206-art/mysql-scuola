@@ -10,6 +10,11 @@ WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Sour
 v=$(echo "SELECT VERSION();" | avvia-mysql -N 2>/dev/null)
 [[ $v == 8.0.* ]] && ok "MySQL $v" || fail "versione inattesa: $v"
 
+# In un vero terminale (pty), con timeout: intercetta comandi che si bloccano
+# in attesa di input invisibili (es. il vecchio "lampp status")
+out=$(timeout 60 script -qec "avvia-mysql -N -e 'SELECT 40+2'" /dev/null 2>&1 | tr -d '\r') || true
+[[ $out == *42* ]] && ok "avvia-mysql funziona in un terminale interattivo" || fail "avvia-mysql bloccato o fallito nel terminale: $out"
+
 rm -f "$WORK/test-e2e.txt"
 printf "tee test-e2e.txt\nSELECT 'ciao' AS saluto;\nnotee\n" | avvia-mysql >/dev/null 2>&1
 grep -q ciao "$WORK/test-e2e.txt" && ok "tee scrive in $WORK" || fail "file del tee mancante"

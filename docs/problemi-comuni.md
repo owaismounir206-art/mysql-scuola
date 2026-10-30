@@ -37,6 +37,20 @@ La cartella `~/.local/bin` non è nel PATH.
 
 Poi controlla che i comandi esistano: `ls ~/.local/bin/avvia-mysql`. Se non c'è, rilancia `./install.sh`.
 
+## `avvia-mysql` non stampa niente e resta bloccato
+
+Succedeva con le versioni vecchie se avevi usato XAMPP: il suo `lampp status` trova dei file `.pid` rimasti e chiede di nascosto conferma per cancellarli. Aggiorna il repo e reinstalla i comandi:
+
+```bash
+git pull && ./install.sh
+```
+
+Per pulire i file rimasti di XAMPP (facoltativo):
+
+```bash
+sudo rm -f /opt/lampp/logs/httpd.pid /opt/lampp/var/proftpd.pid /opt/lampp/var/mysql/*.pid
+```
+
 ## `Il container mysql-scuola non esiste`
 
 L'installazione non è andata a buon fine o hai disinstallato. Rilancia:

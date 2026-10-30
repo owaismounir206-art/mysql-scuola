@@ -24,7 +24,9 @@ fi
 
 # Spegne XAMPP solo se sta girando (usa le stesse porte 80 e 3306).
 # Così sudo viene chiesto solo quando serve davvero.
-if [ -x /opt/lampp/lampp ] && /opt/lampp/lampp status 2>/dev/null | grep -Eq "(MySQL|Apache) is running"; then
+# Niente "lampp status": se trova vecchi .pid di root, il suo rm si ferma
+# a chiedere conferma e il comando sembra bloccato.
+if pgrep -f '^/opt/lampp/s?bin/(httpd|mysqld|mariadbd)' >/dev/null; then
     echo "XAMPP è acceso: lo spengo per liberare le porte 80 e 3306..." >&2
     sudo /opt/lampp/lampp stop
 fi
