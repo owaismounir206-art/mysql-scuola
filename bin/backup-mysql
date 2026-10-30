@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Salva tutti i database (o solo quelli indicati) in un file .sql nella cartella del tee.
+#
+#   backup-mysql              tutti i database
+#   backup-mysql scuola       solo il database "scuola"
+#
+# Per ripristinare:  avvia-mysql < backup-....sql
+set -e
+
+if ! docker container inspect mysql-scuola >/dev/null 2>&1; then
+    echo "Il container mysql-scuola non esiste. Lancia prima ./install.sh" >&2
+    exit 1
+fi
+docker start mysql-scuola >/dev/null
+until docker exec mysql-scuola mysqladmin ping -h 127.0.0.1 -u root --silent >/dev/null 2>&1; do sleep 1; done
+
+WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
+if [ $# -gt 0 ]; then
+    NOME="backup-$(IFS=-; echo "$*")-$(date +%Y%m%d-%H%M).sql"
+    ARGS=(--databases "$@")
+else
+    NOME="backup-tutto-$(date +%Y%m%d-%H%M).sql"
+    ARGS=(--all-databases)
+fi
+
+docker exec mysql-scuola mysqldump -h 127.0.0.1 -u root --routines --triggers --events "${ARGS[@]}" > "$WORK/$NOME"
+echo "Backup salvato in ${WORK/#$HOME/\~}/$NOME ($(du -h "$WORK/$NOME" | cut -f1))"

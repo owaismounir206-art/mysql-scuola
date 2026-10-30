@@ -23,7 +23,9 @@ Soluzione temporanea solo per il terminale aperto: `newgrp docker`.
 Il servizio Docker non è attivo:
 
 ```bash
-sudo systemctl enable --now docker
+sudo systemctl enable --now docker      # quasi tutte le distro
+sudo rc-service docker start            # Alpine, Gentoo (OpenRC), Artix
+sudo ln -s /etc/sv/docker /var/service/ # Void
 ```
 
 ## `fish: Unknown command: avvia-mysql` (o `command not found` in bash)
@@ -57,6 +59,16 @@ L'installazione non è andata a buon fine o hai disinstallato. Rilancia:
    ```
    ti dice quale programma occupa la porta (spesso un altro Apache/nginx: `sudo systemctl stop httpd nginx`).
 
+## phpMyAdmin funziona solo su `localhost:8080`
+
+All'installazione la porta 80 era occupata (tipico su Ubuntu/Debian se è installato `apache2`, o se hai nginx), quindi phpMyAdmin è stato messo solo sulla 8080. Usa http://localhost:8080, oppure libera la porta 80 e ricrea i container:
+
+```bash
+sudo systemctl disable --now apache2   # Ubuntu/Debian
+sudo systemctl disable --now httpd     # Arch/Fedora
+./install.sh --ricrea
+```
+
 ## phpMyAdmin: *"Login senza password vietato"* / *"Accesso negato"*
 
 Stai usando il phpMyAdmin di **XAMPP** e non quello di Docker (succede se XAMPP è acceso). Dai `avvia-mysql`, che spegne XAMPP, e ricarica la pagina.
@@ -67,7 +79,7 @@ Un altro MySQL/MariaDB sta già usando la porta 3306. Di solito è uno di questi
 
 ```bash
 sudo /opt/lampp/lampp stop        # XAMPP
-sudo systemctl stop mariadb mysqld  # MariaDB/MySQL installati col pacman
+sudo systemctl stop mariadb mysql mysqld  # MariaDB/MySQL installati dalla distro
 ```
 
 Se vuoi che MariaDB di sistema non parta più all'avvio: `sudo systemctl disable mariadb`.
@@ -102,6 +114,23 @@ Per tornare a root senza password (dentro MySQL):
 ```sql
 ALTER USER 'root'@'%' IDENTIFIED BY '';
 ALTER USER 'root'@'localhost' IDENTIFIED BY '';
+```
+
+## Fedora: `Permission denied` sui file del tee
+
+È SELinux. `install.sh` lo gestisce da solo, ma se hai creato i container prima di aggiornare lo script rilancia:
+
+```bash
+./install.sh --ricrea
+```
+
+## Ubuntu: Docker installato con snap dà errori di permessi
+
+Se avevi installato Docker con `snap`, a volte non vede le cartelle fuori dalla home e dà problemi di permessi. Meglio la versione apt:
+
+```bash
+sudo snap remove docker
+./install.sh
 ```
 
 ## Il primo `install.sh` è lentissimo / si blocca su `Pulling`

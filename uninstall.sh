@@ -13,7 +13,7 @@ docker info >/dev/null 2>&1 || DOCKER="sudo docker"
 $DOCKER rm -f mysql-scuola pma-scuola 2>/dev/null || true
 $DOCKER network rm scuola 2>/dev/null || true
 
-for c in avvia-mysql stop-mysql avvia-xampp stop-xampp stato-mysql; do
+for c in avvia-mysql stop-mysql avvia-xampp stop-xampp stato-mysql backup-mysql; do
     rm -f "$HOME/.local/bin/$c"
 done
 rm -rf "$HOME/.local/share/mysql-scuola"

@@ -1,16 +1,31 @@
-# mysql-arch 🐬
+# mysql-scuola 🐬
 
-**MySQL 8 + phpMyAdmin on Arch Linux / CachyOS, set up with a single command.**
+[![test](../../actions/workflows/test.yml/badge.svg)](../../actions/workflows/test.yml)
 
-Made for school: it gives you the same MySQL 8 the teachers use, `tee` to save your work to `.txt` files, and phpMyAdmin at `http://localhost/phpmyadmin`, just like XAMPP. You don't have to fight with the MariaDB that XAMPP bundles.
+**MySQL 8 + phpMyAdmin su qualsiasi distro Linux, con un solo comando.**
 
-Under the hood it uses **Docker**, but you don't need to know anything about it.
+Pensato per la scuola: hai lo stesso MySQL 8 dei prof, `tee` per salvare il lavoro in `.txt` e phpMyAdmin su `http://localhost/phpmyadmin`, come con XAMPP. Senza impazzire con il MariaDB di XAMPP.
+
+Funziona con **Docker** sotto al cofano, ma non devi sapere niente di Docker.
+
+## 🐧 Distro supportate
+
+| Distro | Docker installato con |
+|---|---|
+| Arch, CachyOS, Manjaro, EndeavourOS, Garuda | `pacman -S docker` |
+| Ubuntu, Debian, Linux Mint, Pop!_OS, Zorin, elementary | `apt install docker.io` |
+| Fedora | `dnf install moby-engine` |
+| openSUSE Tumbleweed / Leap | `zypper install docker` |
+| Void | `xbps-install docker` |
+| Alpine | `apk add docker` |
+| Gentoo | `emerge app-containers/docker` |
+
+Se hai già Docker installato (anche su un'altra distro), lo script lo usa e basta.
+Su RHEL/Rocky/Alma installa prima Docker [dal sito ufficiale](https://docs.docker.com/engine/install/).
 
 ---
 
-## 🚀 Installation (one time only)
-
-Open the terminal and paste:
+## 🚀 Installazione (una volta sola)
 
 ```bash
 git clone https://github.com/owaismounir206-art/mysql-arch.git
@@ -18,23 +33,25 @@ cd mysql-arch
 ./install.sh
 ```
 
-It will ask for your password (for `sudo`). The first time it downloads about 700 MB, so give it a few minutes.
+Ti chiede la password (per `sudo`). La prima volta scarica circa 700 MB: dagli qualche minuto.
 
-> ⚠️ **When it finishes, log out and back in (or restart your PC).**
-> Otherwise every command will fail with `permission denied`.
+> ⚠️ **Alla fine fai logout e login (o riavvia il PC).**
+> Altrimenti i comandi danno `permission denied`.
 
-## ✅ Daily use
+## ✅ Uso quotidiano
 
-| Command | What it does |
+| Comando | Cosa fa |
 |---|---|
-| `avvia-mysql` | Starts everything and drops you at the `mysql>` prompt |
-| `stop-mysql` | Shuts everything down (your data stays) |
-| `stato-mysql` | Shows what is running |
-| `avvia-xampp` / `stop-xampp` | Switches to XAMPP, if you also use it |
+| `avvia-mysql` | Accende tutto ed entra nel prompt `mysql>` |
+| `avvia-mysql < file.sql` | Esegue un file `.sql` ed esce |
+| `stop-mysql` | Spegne tutto (i dati restano) |
+| `backup-mysql [database]` | Salva i database in un `.sql` |
+| `stato-mysql` | Mostra cosa è acceso e chi occupa le porte |
+| `avvia-xampp` / `stop-xampp` | Passa a XAMPP (se lo usi anche) |
 
-**phpMyAdmin:** http://localhost/phpmyadmin, user `root`, password **empty**.
+**phpMyAdmin:** http://localhost/phpmyadmin → utente `root`, password **vuota**.
 
-### Saving your work to a file (tee)
+### Salvare il lavoro su file (tee)
 
 ```sql
 mysql> tee esercizio1.txt
@@ -43,22 +60,22 @@ mysql> notee
 mysql> exit
 ```
 
-The file ends up in **`~/Documents/mysql/esercizio1.txt`**. Write only the name, without a path.
+Il file finisce in **`~/Documents/mysql/esercizio1.txt`**. Scrivi solo il nome, senza percorso.
 
-## 📚 Documentation
+## 📚 Documentazione
 
-- [Complete usage guide](docs/guida-uso.md): tee, importing `.sql` files, phpMyAdmin, XAMPP
-- [Common problems and fixes](docs/problemi-comuni.md): **start here if something doesn't work**
-- [How it works](docs/come-funziona.md): for the curious
-- [Uninstalling](docs/disinstallare.md)
+- [Guida completa all'uso](docs/guida-uso.md): tee, importare `.sql`, backup, phpMyAdmin, DBeaver/VS Code, XAMPP
+- [Problemi comuni e soluzioni](docs/problemi-comuni.md): **leggi qui se qualcosa non va**
+- [Come funziona](docs/come-funziona.md): per i curiosi
+- [Disinstallare](docs/disinstallare.md)
 
-## 🗑️ Uninstalling
+## 🗑️ Disinstallare
 
 ```bash
-./uninstall.sh          # removes everything but keeps your databases
-./uninstall.sh --tutto  # also deletes your databases
+./uninstall.sh          # toglie tutto ma tiene i tuoi database
+./uninstall.sh --tutto  # cancella anche i database
 ```
 
 ---
 
-> 🔒 Root has no password, but MySQL and phpMyAdmin are reachable **only from your own PC** (127.0.0.1). Nobody on the school Wi‑Fi can get in.
+> 🔒 Root non ha password, ma MySQL e phpMyAdmin sono raggiungibili **solo dal tuo PC** (127.0.0.1): nessuno sul Wi‑Fi della scuola può entrarci.

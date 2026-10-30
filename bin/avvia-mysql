@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 # Avvia MySQL 8 + phpMyAdmin (Docker) ed entra nel prompt mysql>.
-# I file creati con "tee" finiscono in ~/Documents/mysql
+# I file creati con "tee" finiscono nella cartella mostrata all'avvio (di solito ~/Documents/mysql).
+#
+#   avvia-mysql                   prompt interattivo
+#   avvia-mysql -p                se hai messo una password a root
+#   avvia-mysql < esercizio.sql   esegue un file e esce
 set -e
-mkdir -p "$HOME/Documents/mysql"
 
 if ! docker info >/dev/null 2>&1; then
-    if ! systemctl is-active --quiet docker; then
+    if ! docker info 2>&1 | grep -qi "permission denied"; then
         echo "Docker è spento. Avvialo con:  sudo systemctl enable --now docker" >&2
     else
         echo "Non hai i permessi per usare Docker." >&2
@@ -22,18 +25,32 @@ fi
 # Spegne XAMPP solo se sta girando (usa le stesse porte 80 e 3306).
 # Così sudo viene chiesto solo quando serve davvero.
 if [ -x /opt/lampp/lampp ] && /opt/lampp/lampp status 2>/dev/null | grep -Eq "(MySQL|Apache) is running"; then
-    echo "XAMPP è acceso: lo spengo per liberare le porte 80 e 3306..."
+    echo "XAMPP è acceso: lo spengo per liberare le porte 80 e 3306..." >&2
     sudo /opt/lampp/lampp stop
 fi
 
 docker start mysql-scuola pma-scuola >/dev/null
 
-printf "Attendo che MySQL sia pronto"
+printf "Attendo che MySQL sia pronto" >&2
 for _ in $(seq 1 60); do
     docker exec mysql-scuola mysqladmin ping -h 127.0.0.1 -u root --silent >/dev/null 2>&1 && break
-    printf "."; sleep 1
+    printf "." >&2; sleep 1
 done
-echo " ok!  (phpMyAdmin: http://localhost/phpmyadmin)"
+echo " ok!" >&2
+
+if [ -t 0 ]; then
+    WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
+    if docker port pma-scuola 2>/dev/null | grep -q ':80$'; then
+        PMA="http://localhost/phpmyadmin"
+    else
+        PMA="http://localhost:8080"
+    fi
+    echo "   phpMyAdmin: $PMA   |   file del tee in: ${WORK/#$HOME/\~}" >&2
+    TTY=(-it)
+else
+    TTY=(-i)   # input da file/pipe: niente terminale interattivo
+fi
 
 # Gira come il tuo utente, così i file del tee sono tuoi e non di root
-exec docker exec -it -u "$(id -u):$(id -g)" -e HOME=/tmp -w /work mysql-scuola mysql -h 127.0.0.1 -u root "$@"
+exec docker exec "${TTY[@]}" -u "$(id -u):$(id -g)" -e HOME=/tmp -w /work \
+    mysql-scuola mysql -h 127.0.0.1 -u root "$@"

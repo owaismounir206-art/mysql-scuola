@@ -1,30 +1,33 @@
-# Uninstalling
+# Disinstallare
 
-From the repo folder:
+Dalla cartella del repo:
 
 ```bash
 ./uninstall.sh
 ```
 
-This removes the containers, the network and the quick commands, **but keeps your databases** in the `mysql-scuola-data` volume. If you run `./install.sh` again later, you'll find everything as you left it.
+Toglie container, rete e comandi rapidi, **ma tiene i tuoi database** nel volume `mysql-scuola-data`. Se un giorno rilanci `./install.sh` ritrovi tutto com'era.
 
-## Deleting the databases too
+## Cancellare anche i database
 
 ```bash
 ./uninstall.sh --tutto
 ```
 
-It asks for confirmation. **This cannot be undone.** Do a backup first if you need it (see the [usage guide](guida-uso.md#esportare-un-database)).
+Chiede conferma. **Non si torna indietro**: se ti servono, prima fai un backup con `backup-mysql`.
 
-## Removing Docker as well
+## Togliere anche Docker
 
-The script doesn't touch Docker, because you might be using it for something else. To remove it completely:
+Lo script non tocca Docker, perché potresti usarlo per altro. Per rimuoverlo del tutto:
 
 ```bash
+docker system prune -a --volumes   # cancella TUTTE le immagini/container/volumi Docker
 sudo systemctl disable --now docker
-docker system prune -a --volumes   # deletes ALL images/containers/volumes (before the removal)
-sudo pacman -Rns docker
+sudo pacman -Rns docker            # Arch e derivate
+sudo apt purge docker.io           # Ubuntu/Debian/Mint
+sudo dnf remove moby-engine        # Fedora
+sudo zypper remove docker          # openSUSE
 sudo gpasswd -d $USER docker
 ```
 
-The `.txt` files in `~/Documents/mysql` are never deleted automatically.
+I file `.txt` e i backup in `~/Documents/mysql` non vengono mai cancellati automaticamente.

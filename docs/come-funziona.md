@@ -26,7 +26,7 @@ XAMPP su Linux include **MariaDB**, non MySQL. Sono molto simili ma non identici
 | Volume | `mysql-scuola-data` | Dove vivono i database. Sopravvive anche se cancelli il container |
 | Rete | `scuola` | Fa parlare phpMyAdmin con MySQL |
 | Cartella | `~/Documents/mysql` | Montata dentro MySQL come `/work`: qui finiscono i `tee` e da qui legge `source` |
-| Comandi | `~/.local/bin/*` | `avvia-mysql`, `stop-mysql`, … |
+| Comandi | `~/.local/bin/*` | `avvia-mysql`, `stop-mysql`, `backup-mysql`, … |
 | Config | `~/.local/share/mysql-scuola/` | La regola Apache che fa funzionare `/phpmyadmin` |
 
 ## Dettagli
@@ -35,6 +35,9 @@ XAMPP su Linux include **MariaDB**, non MySQL. Sono molto simili ma non identici
 - **`--restart unless-stopped`**: MySQL ripartirà da solo dopo un riavvio, a meno che tu non l'abbia spento con `stop-mysql`.
 - **`avvia-mysql` usa il client dentro il container** (`docker exec`), quindi non serve installare il client MySQL e non ci sono problemi di compatibilità con `caching_sha2_password`.
 - **Il client gira con il tuo UID**, così i file creati dal `tee` sono tuoi e non di root.
+- **SELinux (Fedora)**: se è attivo, `install.sh` aggiunge l'opzione `:z` ai mount, altrimenti il container non può scrivere in `~/Documents/mysql`.
+- **Porta 80 occupata** (es. `apache2` su Ubuntu): `install.sh` se ne accorge e mette phpMyAdmin solo sulla 8080 invece di fallire.
+- **Test automatici**: [`tests/e2e.sh`](../tests/e2e.sh) verifica tee, backup/ripristino, phpMyAdmin e sicurezza delle porte; gira su GitHub Actions a ogni push.
 - **`/phpmyadmin`**: l'immagine ufficiale serve phpMyAdmin su `/`. Il file [`config/phpmyadmin-alias.conf`](../config/phpmyadmin-alias.conf) aggiunge un `Alias` Apache per avere lo stesso indirizzo di XAMPP.
 
 ## Comandi Docker utili

@@ -41,12 +41,23 @@ source scuola.sql
 
 In alternativa da phpMyAdmin: **Importa → Scegli file → Esegui**.
 
-## Esportare un database
-
-Da terminale (fuori da MySQL):
+Oppure, da fuori MySQL, esegui direttamente il file:
 
 ```bash
-docker exec mysql-scuola mysqldump -u root nome_database > ~/Documents/mysql/backup.sql
+avvia-mysql < ~/Downloads/scuola.sql
+```
+
+## Fare un backup
+
+```bash
+backup-mysql             # tutti i database
+backup-mysql scuola      # solo "scuola"
+```
+
+Crea un file tipo `~/Documents/mysql/backup-scuola-20261021-0900.sql`. Per ripristinarlo:
+
+```bash
+avvia-mysql < ~/Documents/mysql/backup-scuola-20261021-0900.sql
 ```
 
 Oppure da phpMyAdmin: seleziona il database → **Esporta**.
