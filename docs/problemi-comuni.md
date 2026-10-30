@@ -96,6 +96,8 @@ docker logs --tail 30 mysql-scuola
 
 ## Il file del `tee` non c'è
 
+- Hai cancellato e ricreato `~/Documents/mysql`? Docker la ricrea come **root** e il tee non può più scriverci. `avvia-mysql` lo sistema da solo all'avvio; se vedi ancora `Permesso negato`, dai `stop-mysql` e poi `avvia-mysql`.
+
 - Hai dato `notee` (o `exit`) alla fine? Fino ad allora il file potrebbe essere incompleto.
 - Hai scritto un percorso (`tee ~/file.txt`)? Scrivi **solo il nome**: `tee file.txt`.
 - Cerca in **`~/Documents/mysql/`**, non nella cartella dove hai aperto il terminale.

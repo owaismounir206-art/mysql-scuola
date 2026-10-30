@@ -38,8 +38,14 @@ for _ in $(seq 1 60); do
 done
 echo " ok!" >&2
 
+# Se ~/Documents/mysql è stata cancellata, Docker la ricrea come root:
+# la restituiamo al tuo utente, altrimenti il tee non può scriverci.
+WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
+if [ -d "$WORK" ] && [ ! -O "$WORK" ]; then
+    docker exec -u 0 mysql-scuola chown "$(id -u):$(id -g)" /work
+fi
+
 if [ -t 0 ]; then
-    WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
     if docker port pma-scuola 2>/dev/null | grep -q ':80$'; then
         PMA="http://localhost/phpmyadmin"
     else

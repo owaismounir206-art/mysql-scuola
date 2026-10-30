@@ -14,7 +14,12 @@ fi
 docker start mysql-scuola >/dev/null
 until docker exec mysql-scuola mysqladmin ping -h 127.0.0.1 -u root --silent >/dev/null 2>&1; do sleep 1; done
 
+# Se ~/Documents/mysql è stata cancellata, Docker la ricrea come root:
+# la restituiamo al tuo utente, altrimenti il tee non può scriverci.
 WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
+if [ -d "$WORK" ] && [ ! -O "$WORK" ]; then
+    docker exec -u 0 mysql-scuola chown "$(id -u):$(id -g)" /work
+fi
 if [ $# -gt 0 ]; then
     NOME="backup-$(IFS=-; echo "$*")-$(date +%Y%m%d-%H%M).sql"
     ARGS=(--databases "$@")
