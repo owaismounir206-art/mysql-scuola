@@ -26,8 +26,11 @@ tee cognome_esercizio.txt
 notee
 ```
 
-- Scrivi **solo il nome del file**, niente percorso (`tee /home/...` NON funziona).
-- Il file finisce in **`~/Documents/mysql/`** (in Dolphin/Nautilus: *Documenti → mysql*).
+- Con **solo il nome** (`tee es1.txt`) il file finisce in **`~/Documents/mysql/`** (in Dolphin/Nautilus: *Documenti → mysql*).
+- Puoi anche usare un **percorso completo** dentro la tua home: `tee /home/tuonome/Documents/mysql/prodotti/prodotti.txt`.
+- **La cartella deve già esistere**: `tee` crea il file, non le cartelle. Creala prima (da terminale `mkdir -p ~/Documents/mysql/prodotti`, oppure dal file manager).
+- `~` non funziona dentro MySQL: scrivi `/home/tuonome/...` per intero.
+- Fuori dalla home (es. `/tmp`, `/mnt`, chiavette USB) non funziona: MySQL gira in un container che vede solo la tua home.
 - Se rilanci `tee` con lo stesso nome, il testo viene **aggiunto in fondo**, non sovrascritto.
 
 ## Importare un file `.sql`

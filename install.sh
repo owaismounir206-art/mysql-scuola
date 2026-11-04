@@ -110,9 +110,13 @@ fi
 mkdir -p "$BIN" "$SHARE" "$WORK"
 install -m 644 config/phpmyadmin-alias.conf "$SHARE/phpmyadmin-alias.conf"
 
-# Fedora/RHEL con SELinux: i bind mount vanno etichettati, altrimenti "permission denied"
-Z=""
-if command -v selinuxenabled >/dev/null && selinuxenabled; then Z="z"; fi
+# Fedora/RHEL con SELinux: i bind mount vanno etichettati, altrimenti "permission denied".
+# Per la home NON usiamo ":z" (rietichetterebbe tutta la home): disattiviamo
+# l'etichettatura solo per il container MySQL.
+Z=""; SELINUX_OPT=()
+if command -v selinuxenabled >/dev/null && selinuxenabled; then
+    Z="z"; SELINUX_OPT=(--security-opt label=disable)
+fi
 
 # 4. Container ----------------------------------------------------------------------
 $DOCKER network inspect scuola >/dev/null 2>&1 || $DOCKER network create scuola >/dev/null
@@ -121,16 +125,22 @@ if ! container_esiste mysql-scuola; then
     verde "Creo il container MySQL 8 (il primo download richiede qualche minuto)"
     # - porta solo su 127.0.0.1: root senza password NON è raggiungibile dalla rete
     # - volume mysql-scuola-data: i database sopravvivono anche se ricrei il container
-    # - ~/Documents/mysql montata su /work: lì finiscono i file del tee
+    # - la tua home è visibile nel container allo STESSO percorso, così
+    #   "tee /home/tu/qualcosa.txt" e "source /home/tu/file.sql" funzionano
+    #   come senza Docker (il client gira col tuo utente: non può toccare
+    #   niente che tu stesso non possa toccare)
     $DOCKER run -d --name mysql-scuola --network scuola \
         -p 127.0.0.1:3306:3306 \
         -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
         -v mysql-scuola-data:/var/lib/mysql \
-        -v "$WORK:/work${Z:+:$Z}" \
+        -v "$HOME:$HOME" "${SELINUX_OPT[@]}" \
         --restart unless-stopped \
         mysql:8.0 >/dev/null
 else
     giallo "mysql-scuola esiste già, lo lascio com'è"
+    if ! $DOCKER inspect -f '{{range .Mounts}}{{.Destination}} {{end}}' mysql-scuola | grep -qw "$HOME"; then
+        giallo "È della versione vecchia (niente percorsi completi nel tee): rilancia ./install.sh --ricrea"
+    fi
 fi
 
 if ! container_esiste pma-scuola; then

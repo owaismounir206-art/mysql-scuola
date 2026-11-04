@@ -60,7 +60,7 @@ mysql> notee
 mysql> exit
 ```
 
-Il file finisce in **`~/Documents/mysql/esercizio1.txt`**. Scrivi solo il nome, senza percorso.
+Con solo il nome, il file finisce in **`~/Documents/mysql/esercizio1.txt`**. Funzionano anche i percorsi completi, es. `tee /home/tuonome/Documents/scuola/es1.txt` (la cartella deve già esistere).
 
 ## 📚 Documentazione
 

@@ -40,11 +40,23 @@ for _ in $(seq 1 60); do
 done
 echo " ok!" >&2
 
-# Se ~/Documents/mysql è stata cancellata, Docker la ricrea come root:
-# la restituiamo al tuo utente, altrimenti il tee non può scriverci.
-WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
-if [ -d "$WORK" ] && [ ! -O "$WORK" ]; then
-    docker exec -u 0 mysql-scuola chown "$(id -u):$(id -g)" /work
+MOUNTS=$(docker inspect -f '{{range .Mounts}}{{.Destination}} {{end}}' mysql-scuola)
+if [[ " $MOUNTS " == *" $HOME "* ]]; then
+    # Container nuovo: la home è visibile allo stesso percorso, quindi
+    # "tee nome.txt" va in ~/Documents/mysql e "tee /home/.../x.txt" funziona.
+    WORK="$HOME/Documents/mysql"
+    mkdir -p "$WORK"     # creata da te, non da Docker (che la farebbe di root)
+    WDIR="$WORK"
+else
+    # Container vecchio: solo ~/Documents/mysql, visibile come /work
+    WORK=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' mysql-scuola)
+    WDIR=/work
+    # Se ~/Documents/mysql è stata cancellata, Docker la ricrea come root:
+    # la restituiamo al tuo utente, altrimenti il tee non può scriverci.
+    if [ -d "$WORK" ] && [ ! -O "$WORK" ]; then
+        docker exec -u 0 mysql-scuola chown "$(id -u):$(id -g)" /work
+    fi
+    echo "   (versione vecchia: nel tee usa solo il nome del file. Per i percorsi completi: ./install.sh --ricrea)" >&2
 fi
 
 if [ -t 0 ]; then
@@ -60,5 +72,5 @@ else
 fi
 
 # Gira come il tuo utente, così i file del tee sono tuoi e non di root
-exec docker exec "${TTY[@]}" -u "$(id -u):$(id -g)" -e HOME=/tmp -w /work \
+exec docker exec "${TTY[@]}" -u "$(id -u):$(id -g)" -e HOME=/tmp -w "$WDIR" \
     mysql-scuola mysql -h 127.0.0.1 -u root "$@"

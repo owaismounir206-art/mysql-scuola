@@ -11,7 +11,7 @@ XAMPP su Linux include **MariaDB**, non MySQL. Sono molto simili ma non identici
  ┌────────────────────────────────────────────────┐
  │  :3306 ──► mysql-scuola  (mysql:8.0)            │
  │              ├─ volume mysql-scuola-data  ◄── i tuoi database
- │              └─ ~/Documents/mysql → /work ◄── i file del tee
+ │              └─ la tua home (stesso percorso) ◄── i file del tee
  │                    ▲                            │
  │                    │ rete docker "scuola"       │
  │  :80   ──►  pma-scuola (phpmyadmin)             │
@@ -25,7 +25,7 @@ XAMPP su Linux include **MariaDB**, non MySQL. Sono molto simili ma non identici
 | Container | `pma-scuola` | phpMyAdmin |
 | Volume | `mysql-scuola-data` | Dove vivono i database. Sopravvive anche se cancelli il container |
 | Rete | `scuola` | Fa parlare phpMyAdmin con MySQL |
-| Cartella | `~/Documents/mysql` | Montata dentro MySQL come `/work`: qui finiscono i `tee` e da qui legge `source` |
+| Cartella | la tua home | Visibile dentro il container **allo stesso percorso**, così `tee /home/tu/...` e `source /home/tu/...` funzionano. Con solo il nome del file si usa `~/Documents/mysql` |
 | Comandi | `~/.local/bin/*` | `avvia-mysql`, `stop-mysql`, `backup-mysql`, … |
 | Config | `~/.local/share/mysql-scuola/` | La regola Apache che fa funzionare `/phpmyadmin` |
 
@@ -34,8 +34,8 @@ XAMPP su Linux include **MariaDB**, non MySQL. Sono molto simili ma non identici
 - **Porte solo su `127.0.0.1`**: root senza password va bene sul tuo PC, ma non deve essere raggiungibile da altri sulla stessa rete.
 - **`--restart unless-stopped`**: MySQL ripartirà da solo dopo un riavvio, a meno che tu non l'abbia spento con `stop-mysql`.
 - **`avvia-mysql` usa il client dentro il container** (`docker exec`), quindi non serve installare il client MySQL e non ci sono problemi di compatibilità con `caching_sha2_password`.
-- **Il client gira con il tuo UID**, così i file creati dal `tee` sono tuoi e non di root.
-- **SELinux (Fedora)**: se è attivo, `install.sh` aggiunge l'opzione `:z` ai mount, altrimenti il container non può scrivere in `~/Documents/mysql`.
+- **Il client gira con il tuo UID**, così i file creati dal `tee` sono tuoi e non di root, e può leggere/scrivere solo dove puoi già farlo tu. Il server MySQL invece non scrive mai nella tua home: i database stanno nel volume.
+- **SELinux (Fedora)**: se è attivo, `install.sh` disattiva l'etichettatura SELinux solo per il container MySQL (`--security-opt label=disable`), altrimenti non potrebbe scrivere nella home. Non usa `:z`, che rietichetterebbe tutta la home.
 - **Porta 80 occupata** (es. `apache2` su Ubuntu): `install.sh` se ne accorge e mette phpMyAdmin solo sulla 8080 invece di fallire.
 - **Test automatici**: [`tests/e2e.sh`](../tests/e2e.sh) verifica tee, backup/ripristino, phpMyAdmin e sicurezza delle porte; gira su GitHub Actions a ogni push.
 - **`/phpmyadmin`**: l'immagine ufficiale serve phpMyAdmin su `/`. Il file [`config/phpmyadmin-alias.conf`](../config/phpmyadmin-alias.conf) aggiunge un `Alias` Apache per avere lo stesso indirizzo di XAMPP.

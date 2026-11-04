@@ -108,12 +108,34 @@ MySQL non ha finito di avviarsi. Il primo avvio in assoluto può richiedere **30
 docker logs --tail 30 mysql-scuola
 ```
 
+## `tee`: `Can't create/write to file ... (OS errno 2 - No such file or directory)`
+
+Tre possibili cause:
+
+1. **La cartella non esiste.** `tee` crea il file ma non le cartelle. Se scrivi `tee /home/tu/Documents/mysql/prodotti/prodotti.txt`, la cartella `prodotti` deve esserci già:
+   ```bash
+   mkdir -p ~/Documents/mysql/prodotti
+   ```
+2. **Il percorso è fuori dalla tua home** (es. `/tmp/...`, `/run/media/...` per le chiavette). Il container vede solo la home: salva lì e copia il file dopo.
+3. **Hai installato una versione vecchia** (prima di novembre 2026), in cui funzionava solo il nome del file. `avvia-mysql` te lo dice all'avvio. Aggiorna e ricrea i container (i database restano):
+   ```bash
+   git pull && ./install.sh --ricrea
+   ```
+
+## `tee`: `Permission denied` (OS errno 13)
+
+La cartella non è tua, spesso perché Docker l'ha ricreata come root. Controlla con `ls -ld ~/Documents ~/Documents/mysql`: se il proprietario è `root`, riprenditela:
+
+```bash
+sudo chown $USER: ~/Documents ~/Documents/mysql
+```
+
 ## Il file del `tee` non c'è
 
 - Hai cancellato e ricreato `~/Documents/mysql`? Docker la ricrea come **root** e il tee non può più scriverci. `avvia-mysql` lo sistema da solo all'avvio; se vedi ancora `Permesso negato`, dai `stop-mysql` e poi `avvia-mysql`.
 
 - Hai dato `notee` (o `exit`) alla fine? Fino ad allora il file potrebbe essere incompleto.
-- Hai scritto un percorso (`tee ~/file.txt`)? Scrivi **solo il nome**: `tee file.txt`.
+- Hai scritto `~` nel percorso (`tee ~/file.txt`)? MySQL non lo capisce: scrivi `/home/tuonome/file.txt` per intero, oppure solo il nome.
 - Cerca in **`~/Documents/mysql/`**, non nella cartella dove hai aperto il terminale.
 - Il sistema è in italiano e hai la cartella `Documenti` invece di `Documents`? Il file è comunque in `~/Documents/mysql` (la crea lo script).
 
