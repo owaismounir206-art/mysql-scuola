@@ -6,9 +6,10 @@
 # così viene eseguito solo se è arrivato intero.
 main() {
     set -euo pipefail
-    local ref="${MYSQL_SCUOLA_REF:-main}" tmp
+    local ref="${MYSQL_SCUOLA_REF:-main}"
     command -v tar >/dev/null || { echo "Serve il programma tar: installalo e riprova." >&2; exit 1; }
 
+    # Non local: la trap gira quando main() è già finita
     tmp=$(mktemp -d)
     trap 'rm -rf "$tmp"' EXIT
     echo ">> Scarico mysql-scuola"
