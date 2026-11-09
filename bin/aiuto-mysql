@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Elenco dei comandi e promemoria
+cat <<'TESTO'
+mysql-scuola: MySQL 8 + phpMyAdmin con Docker
+
+COMANDI
+  avvia-mysql              accende tutto ed entra nel prompt mysql>
+  avvia-mysql < file.sql   esegue un file .sql ed esce
+  stop-mysql               spegne tutto (i dati restano)
+  stato-mysql              mostra cosa è acceso e chi occupa le porte
+  backup-mysql [database]  salva i database in ~/Documents/mysql
+  aggiorna-mysql           aggiorna comandi, MySQL e phpMyAdmin
+  avvia-xampp, stop-xampp  passa a XAMPP e lo spegne
+  disinstalla-mysql        toglie tutto ma tiene i database (--tutto cancella anche quelli)
+  aiuto-mysql              mostra questa pagina
+
+PHPMYADMIN
+  http://localhost/phpmyadmin   utente root, password vuota
+
+SALVARE IL LAVORO CON TEE (dentro mysql>)
+  tee esercizio.txt        il file finisce in ~/Documents/mysql
+  ...le tue query...
+  notee
+
+  Vanno bene anche i percorsi completi nella tua home:
+    tee /home/tuonome/Documents/mysql/prodotti/prodotti.txt
+  La cartella deve già esistere, e dentro MySQL ~ non funziona.
+
+QUALCOSA NON VA?
+  https://github.com/owaismounir206-art/mysql-scuola/blob/main/docs/problemi-comuni.md
+TESTO

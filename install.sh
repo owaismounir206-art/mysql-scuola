@@ -139,7 +139,7 @@ if ! container_esiste mysql-scuola; then
 else
     giallo "mysql-scuola esiste già, lo lascio com'è"
     if ! $DOCKER inspect -f '{{range .Mounts}}{{.Destination}} {{end}}' mysql-scuola | grep -qw "$HOME"; then
-        giallo "È della versione vecchia (niente percorsi completi nel tee): rilancia ./install.sh --ricrea"
+        giallo "È della versione vecchia (niente percorsi completi nel tee): lancia aggiorna-mysql"
     fi
 fi
 
@@ -166,6 +166,7 @@ verde "Installo i comandi in $BIN"
 for f in bin/*; do
     install -m 755 "$f" "$BIN/"
 done
+install -m 755 uninstall.sh "$BIN/disinstalla-mysql"
 
 case ":$PATH:" in
     *":$BIN:"*) ;;
@@ -197,6 +198,7 @@ else
     echo "   phpMyAdmin:         http://localhost:8080   (utente root, password vuota)"
 fi
 echo "   Spegnere tutto:     stop-mysql"
+echo "   Tutti i comandi:    aiuto-mysql"
 if [ "$DEVE_RIENTRARE" = 1 ]; then
     echo
     giallo "IMPORTANTE: fai logout e login (o riavvia il PC) prima di usare i comandi,"

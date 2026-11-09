@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Aggiorna comandi, MySQL 8.0 e phpMyAdmin. I database restano.
+set -euo pipefail
+
+REF="${MYSQL_SCUOLA_REF:-main}"
+TMP=$(mktemp -d)
+trap 'rm -rf "$TMP"' EXIT
+
+if ! docker info >/dev/null 2>&1; then
+    echo "Docker non risponde: è acceso? Hai fatto logout/login dopo l'installazione?" >&2
+    exit 1
+fi
+
+echo ">> Scarico l'ultima versione"
+curl -fsSL "https://github.com/owaismounir206-art/mysql-scuola/archive/$REF.tar.gz" | tar -xz -C "$TMP" --strip-components=1
+
+echo ">> Controllo MySQL e phpMyAdmin"
+docker pull -q mysql:8.0 >/dev/null
+docker pull -q phpmyadmin:5 >/dev/null
+
+# True se il container va ricreato: immagine nuova oppure struttura vecchia
+da_ricreare() {
+    docker container inspect "$1" >/dev/null 2>&1 || return 1
+    [ "$(docker inspect -f '{{.Image}}' "$1")" != "$(docker image inspect -f '{{.Id}}' "$2")" ]
+}
+
+RICREA=()
+if da_ricreare mysql-scuola mysql:8.0 || da_ricreare pma-scuola phpmyadmin:5; then
+    RICREA=(--ricrea)
+elif docker container inspect mysql-scuola >/dev/null 2>&1 &&
+     [[ " $(docker inspect -f '{{range .Mounts}}{{.Destination}} {{end}}' mysql-scuola) " != *" $HOME "* ]]; then
+    RICREA=(--ricrea)
+fi
+
+if [ "${#RICREA[@]}" -gt 0 ]; then
+    echo ">> C'è una versione nuova: copia di sicurezza, poi ricreo i container"
+    backup-mysql
+fi
+
+bash "$TMP/install.sh" "${RICREA[@]}"
+echo
+echo "Aggiornamento completato."

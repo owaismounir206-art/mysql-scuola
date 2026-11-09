@@ -28,9 +28,7 @@ Su RHEL/Rocky/Alma installa prima Docker [dal sito ufficiale](https://docs.docke
 ## 🚀 Installazione (una volta sola)
 
 ```bash
-git clone https://github.com/owaismounir206-art/mysql-scuola.git
-cd mysql-scuola
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash
 ```
 
 Ti chiede la password (per `sudo`). La prima volta scarica circa 700 MB: dagli qualche minuto.
@@ -47,6 +45,8 @@ Ti chiede la password (per `sudo`). La prima volta scarica circa 700 MB: dagli q
 | `stop-mysql` | Spegne tutto (i dati restano) |
 | `backup-mysql [database]` | Salva i database in un `.sql` |
 | `stato-mysql` | Mostra cosa è acceso e chi occupa le porte |
+| `aggiorna-mysql` (o `update-mysql`) | Aggiorna comandi, MySQL e phpMyAdmin; i database restano |
+| `aiuto-mysql` (o `help-mysql`) | Mostra tutti i comandi |
 | `avvia-xampp` / `stop-xampp` | Passa a XAMPP (se lo usi anche) |
 
 **phpMyAdmin:** http://localhost/phpmyadmin → utente `root`, password **vuota**.
@@ -72,8 +72,8 @@ Con solo il nome, il file finisce in **`~/Documents/mysql/esercizio1.txt`**. Fun
 ## 🗑️ Disinstallare
 
 ```bash
-./uninstall.sh          # toglie tutto ma tiene i tuoi database
-./uninstall.sh --tutto  # cancella anche i database
+disinstalla-mysql          # toglie tutto ma tiene i tuoi database
+disinstalla-mysql --tutto  # cancella anche i database
 ```
 
 ---

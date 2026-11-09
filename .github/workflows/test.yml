@@ -21,5 +21,19 @@ jobs:
         run: ./tests/e2e.sh
       - name: Reinstallazione (idempotente)
         run: ./install.sh && ./install.sh --ricrea && ./tests/e2e.sh
+      - name: Installazione da un solo comando, aggiornamento e aiuto
+        env:
+          MYSQL_SCUOLA_REF: ${{ github.sha }}
+        run: |
+          ./uninstall.sh
+          cat get.sh | bash
+          export PATH="$HOME/.local/bin:$PATH"
+          ./tests/e2e.sh
+          update-mysql
+          help-mysql | grep -q aggiorna-mysql
+          ./tests/e2e.sh
+          disinstalla-mysql
+          ! command -v avvia-mysql
+          ./install.sh
       - name: Disinstalla
         run: ./uninstall.sh && ! docker ps -a | grep -q scuola

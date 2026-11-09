@@ -35,14 +35,14 @@ La cartella `~/.local/bin` non è nel PATH.
 - **fish:** `fish_add_path ~/.local/bin`
 - **bash:** `echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc` e riapri il terminale
 
-Poi controlla che i comandi esistano: `ls ~/.local/bin/avvia-mysql`. Se non c'è, rilancia `./install.sh`.
+Poi controlla che i comandi esistano: `ls ~/.local/bin/avvia-mysql`. Se non c'è, rilancia il comando di installazione del README.
 
 ## `avvia-mysql` non stampa niente e resta bloccato
 
 Succedeva con le versioni vecchie se avevi usato XAMPP: il suo `lampp status` trova dei file `.pid` rimasti e chiede di nascosto conferma per cancellarli. Aggiorna il repo e reinstalla i comandi:
 
 ```bash
-git pull && ./install.sh
+aggiorna-mysql
 ```
 
 Per pulire i file rimasti di XAMPP (facoltativo):
@@ -56,7 +56,7 @@ sudo rm -f /opt/lampp/logs/httpd.pid /opt/lampp/var/proftpd.pid /opt/lampp/var/m
 L'installazione non è andata a buon fine o hai disinstallato. Rilancia:
 
 ```bash
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash
 ```
 
 ## phpMyAdmin non si apre
@@ -80,7 +80,7 @@ All'installazione la porta 80 era occupata (tipico su Ubuntu/Debian se è instal
 ```bash
 sudo systemctl disable --now apache2   # Ubuntu/Debian
 sudo systemctl disable --now httpd     # Arch/Fedora
-./install.sh --ricrea
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash -s -- --ricrea
 ```
 
 ## phpMyAdmin: *"Login senza password vietato"* / *"Accesso negato"*
@@ -119,7 +119,7 @@ Tre possibili cause:
 2. **Il percorso è fuori dalla tua home** (es. `/tmp/...`, `/run/media/...` per le chiavette). Il container vede solo la home: salva lì e copia il file dopo.
 3. **Hai installato una versione vecchia** (prima di novembre 2026), in cui funzionava solo il nome del file. `avvia-mysql` te lo dice all'avvio. Aggiorna e ricrea i container (i database restano):
    ```bash
-   git pull && ./install.sh --ricrea
+   aggiorna-mysql
    ```
 
 ## `tee`: `Permission denied` (OS errno 13)
@@ -159,7 +159,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '';
 È SELinux. `install.sh` lo gestisce da solo, ma se hai creato i container prima di aggiornare lo script rilancia:
 
 ```bash
-./install.sh --ricrea
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash -s -- --ricrea
 ```
 
 ## Ubuntu: Docker installato con snap dà errori di permessi
@@ -168,26 +168,26 @@ Se avevi installato Docker con `snap`, a volte non vede le cartelle fuori dalla 
 
 ```bash
 sudo snap remove docker
-./install.sh
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash
 ```
 
 ## Il primo `install.sh` è lentissimo / si blocca su `Pulling`
 
-Sta scaricando le immagini (~700 MB). Con il Wi‑Fi della scuola può volerci molto: meglio farlo a casa. Se si è interrotto, rilancia `./install.sh`: riprende da dove era rimasto.
+Sta scaricando le immagini (~700 MB). Con il Wi‑Fi della scuola può volerci molto: meglio farlo a casa. Se si è interrotto, rilancia il comando di installazione del README: riprende da dove era rimasto.
 
 ## Voglio ripartire da zero
 
 Mantenendo i database:
 
 ```bash
-./install.sh --ricrea
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash -s -- --ricrea
 ```
 
 Cancellando **tutto**, database compresi:
 
 ```bash
-./uninstall.sh --tutto
-./install.sh
+disinstalla-mysql --tutto
+curl -fsSL https://raw.githubusercontent.com/owaismounir206-art/mysql-scuola/main/get.sh | bash
 ```
 
 ---

@@ -1,17 +1,15 @@
 # Disinstallare
 
-Dalla cartella del repo:
-
 ```bash
-./uninstall.sh
+disinstalla-mysql
 ```
 
-Toglie container, rete e comandi rapidi, **ma tiene i tuoi database** nel volume `mysql-scuola-data`. Se un giorno rilanci `./install.sh` ritrovi tutto com'era.
+Toglie container, rete e comandi rapidi, **ma tiene i tuoi database** nel volume `mysql-scuola-data`. Se un giorno reinstalli ritrovi tutto com'era.
 
 ## Cancellare anche i database
 
 ```bash
-./uninstall.sh --tutto
+disinstalla-mysql --tutto
 ```
 
 Chiede conferma. **Non si torna indietro**: se ti servono, prima fai un backup con `backup-mysql`.

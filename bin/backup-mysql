@@ -8,7 +8,7 @@
 set -e
 
 if ! docker container inspect mysql-scuola >/dev/null 2>&1; then
-    echo "Il container mysql-scuola non esiste. Lancia prima ./install.sh" >&2
+    echo "Il container mysql-scuola non esiste. Installalo col comando nel README: https://github.com/owaismounir206-art/mysql-scuola" >&2
     exit 1
 fi
 docker start mysql-scuola >/dev/null
